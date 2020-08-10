@@ -38,7 +38,7 @@ app.use(cors({ origin: 'http://localhost:3000' }));
 // Routes
 app.post('/submit-feedback', upload, (req, res) => {
     const formData = req.body;
-    // TODO: make an id; then create dir and upload files
+    // TODO: make an id; then create dir and upload file
     //req.body = { id: uuidv4(), ...req.body };
     //console.log(req.body);
 });
