@@ -1,15 +1,17 @@
-const express = require('express');
+import express from 'express';
 const app = express();
-const multer = require('multer');
-const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
+import multer from 'multer';
+import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
 const { v4: uuidv4 } = require('uuid');
+
+import { storeData } from './util';
 
 const HTTP_PORT = process.env.PORT || 8080;
 
 // Stub Variables
-let acceptedFileFormats = ['png', 'jpg']; // render App on server; use config; then give to client, for now: make it match the config on client
+let acceptedFileFormats = /png|jpg/;
 
 // Multer Setup
 const storage = multer.diskStorage({
@@ -34,7 +36,7 @@ const upload = multer({
     fileFilter: (req, file, cb) => {
         let extension = path.extname(file.originalname);
 
-        if (!acceptedFileFormats.includes(extension.slice(1))) {
+        if (!acceptedFileFormats.test(extension)) {
             return cb(new Error('File format is not allowed.'));
         }
 
@@ -53,8 +55,14 @@ const attachId = (req, res, next) => {
 // Routes
 app.post('/submit-feedback', attachId, upload, (req, res) => {
     const formData = req.body;
+    
+    // Save form data to JSON file
+    storeData(formData, `./uploads/${req.id}/form.json`);
 });
 
 app.listen(HTTP_PORT, () => {
     console.log('Listening to ' + HTTP_PORT);
 });
+
+// Todo: Server-side rendering
+// https://www.digitalocean.com/community/tutorials/react-server-side-rendering
