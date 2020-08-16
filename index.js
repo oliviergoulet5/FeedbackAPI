@@ -3,6 +3,7 @@ const app = express();
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 const HTTP_PORT = process.env.PORT || 8080;
@@ -12,7 +13,16 @@ let acceptedFileFormats = ['png', 'jpg']; // render App on server; use config; t
 
 // Multer Setup
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, './feedback'),
+    destination: (req, file, cb) => {
+        const dir = `./uploads/${req.id}`;
+        fs.exists(dir, exist => {
+            if (!exist) {
+                return fs.mkdir(dir, error => cb(error, dir));
+            }
+
+            return cb(null, dir);
+        })
+    },
     filename: (req, file, cb) => {
         let timeStamp = Date.now();
         cb(null, file.fieldname + '-' + timeStamp + '.' + file.originalname.split('.')[file.originalname.split('.').length - 1])
@@ -33,23 +43,16 @@ const upload = multer({
 }).single('attachments');
 
 // Middleware
-const attachIdToRequest = (req, res, next) => {
-    console.log(req.body);
-    req.body = { id: uuidv4(), ...req.body };
-    console.log(req.body);
+app.use(cors({ origin: 'http://localhost:3000' }));
+
+const attachId = (req, res, next) => {
+    req.id = uuidv4();
+    next();
 }
 
-app.use(cors({ origin: 'http://localhost:3000' }));
-//app.use(attachIdToRequest);
-
 // Routes
-app.post('/submit-feedback', upload, (req, res) => {
+app.post('/submit-feedback', attachId, upload, (req, res) => {
     const formData = req.body;
-    attachIdToRequest();
-    // TODO: make an id; then create dir and upload file
-    //req.body = { id: uuidv4(), ...req.body };
-    //console.log(req.body);
-    console.log(req.body);
 });
 
 app.listen(HTTP_PORT, () => {
