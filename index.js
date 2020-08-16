@@ -33,14 +33,23 @@ const upload = multer({
 }).single('attachments');
 
 // Middleware
+const attachIdToRequest = (req, res, next) => {
+    console.log(req.body);
+    req.body = { id: uuidv4(), ...req.body };
+    console.log(req.body);
+}
+
 app.use(cors({ origin: 'http://localhost:3000' }));
+//app.use(attachIdToRequest);
 
 // Routes
 app.post('/submit-feedback', upload, (req, res) => {
     const formData = req.body;
+    attachIdToRequest();
     // TODO: make an id; then create dir and upload file
     //req.body = { id: uuidv4(), ...req.body };
     //console.log(req.body);
+    console.log(req.body);
 });
 
 app.listen(HTTP_PORT, () => {
