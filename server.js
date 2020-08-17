@@ -8,7 +8,6 @@ const HTTP_PORT = process.env.PORT || 8080;
 const app = express();
 
 // Stub Variables
-let acceptedFileFormats = /png|jpg/;
 
 // Middleware
 app.use(cors({ origin: 'http://localhost:3000' }));

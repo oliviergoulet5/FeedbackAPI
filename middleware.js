@@ -3,6 +3,8 @@ import fs from 'fs';
 import multer from 'multer';
 const { v4: uuidv4 } = require('uuid');
 
+let acceptedFileFormats = /png|jpg/;
+
 export const attachId = (req, res, next) => {
     req.id = uuidv4();
     next();
